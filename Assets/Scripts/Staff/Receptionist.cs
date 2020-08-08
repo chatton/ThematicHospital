@@ -51,10 +51,10 @@ namespace Staff
             // find the first desk that that has a free slot
             foreach (ReceptionDesk desk in FindObjectsOfType<ReceptionDesk>())
             {
-                if (desk.IsFreeForReceptionist())
+                if (desk.HasRoomForStaff())
                 {
                     _targetDesk = desk;
-                    desk.RegisterReceptionist(this);
+                    desk.RegisterStaff(this);
                     return true;
                 }
             }

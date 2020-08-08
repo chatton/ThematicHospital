@@ -13,7 +13,7 @@ namespace Hospital.Locations
 
         private Doctor _doctor;
         private Patient _patient;
-
+        
         public bool DoctorIsNeeded => _patient != null && _doctor == null;
 
         private void Awake()
@@ -40,7 +40,7 @@ namespace Hospital.Locations
                 _doctor = doctor;
             }
 
-     
+
             if (_patient != null && _doctor != null)
             {
                 Debug.Log("Assigning Dr: " + _doctor.name + " a patient of: " + _patient.name);
@@ -61,7 +61,6 @@ namespace Hospital.Locations
             {
                 _doctor = null;
             }
-           
         }
     }
 }

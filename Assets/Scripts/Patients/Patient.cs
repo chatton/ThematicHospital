@@ -1,7 +1,5 @@
-﻿using System.Linq;
-using Conditions;
+﻿using Conditions;
 using Hospital.Locations;
-using Staff;
 using State;
 using State.Patient;
 using State.Shared;
@@ -75,7 +73,7 @@ namespace Patients
         {
             foreach (ReceptionDesk desk in FindObjectsOfType<ReceptionDesk>())
             {
-                if (desk.IsFreeForPatient())
+                if (desk.HasRoomForPatient())
                 {
                     _targetDesk = desk;
                     desk.RegisterPatient(this);
