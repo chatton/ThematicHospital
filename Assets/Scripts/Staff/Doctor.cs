@@ -9,7 +9,7 @@ using UnityEngine.AI;
 
 namespace Staff
 {
-    public class Doctor : MonoBehaviour, IRoomSeeker<DiagnosisRoom>
+    public class Doctor : MonoBehaviour, IRoomSeeker
     {
         [SerializeField] private float lookSpeed = 200f;
 
@@ -68,7 +68,7 @@ namespace Staff
             return sm;
         }
 
-        public DiagnosisRoom GetTargetRoom()
+        public IPositionProvider GetPositionProvider()
         {
             return _targetRoom;
         }

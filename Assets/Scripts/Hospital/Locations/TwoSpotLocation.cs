@@ -16,6 +16,7 @@ namespace Hospital.Locations
             StaffMember = staff;
         }
 
+
         public void RegisterPatient(TPatient patient)
         {
             Patient = patient;
@@ -66,15 +67,21 @@ namespace Hospital.Locations
             TStaff staff = other.GetComponent<TStaff>();
             if (staff != null)
             {
-                StaffMember = staff;
-                StaffMemberPreset = true;
+                if (!StaffMemberPreset)
+                {
+                    StaffMember = staff;
+                    StaffMemberPreset = true;
+                }
             }
 
             TPatient patient = other.GetComponent<TPatient>();
             if (patient != null)
             {
-                Patient = patient;
-                PatientPresent = true;
+                if (!PatientPresent)
+                {
+                    Patient = patient;
+                    PatientPresent = true;
+                }
             }
 
             DoOnTriggerEnter(other);

@@ -1,11 +1,12 @@
 using Patients;
 using Staff;
+using State.Patient;
 using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace Hospital.Locations
 {
-    public class DiagnosisRoom : TwoSpotLocation<Doctor, Patient>
+    public class DiagnosisRoom : TwoSpotLocation<Doctor, Patient>, IPositionProvider
     {
         [SerializeField] private Transform patientLocation;
         [SerializeField] private Transform doctorLocation;
@@ -18,10 +19,6 @@ namespace Hospital.Locations
             Assert.IsNotNull(doctorLocation, "doctorLocation location was not set!");
         }
 
-        public Vector3 PatientPosition => patientLocation.position;
-        public Vector3 DoctorPosition => doctorLocation.position;
-
-
         protected override void DoOnTriggerEnter(Collider other)
         {
             if (Patient != null && StaffMember != null)
@@ -29,6 +26,16 @@ namespace Hospital.Locations
                 Debug.Log("Assigning Dr: " + StaffMember.name + " a patient of: " + Patient.name);
                 StaffMember.CurrentPatient = Patient;
             }
+        }
+
+        public Vector3 GetPosition(CharacterType type)
+        {
+            if (type == CharacterType.Patient)
+            {
+                return patientLocation.position;
+            }
+
+            return doctorLocation.position;
         }
     }
 }

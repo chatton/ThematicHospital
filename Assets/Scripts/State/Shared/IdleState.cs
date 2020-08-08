@@ -10,7 +10,6 @@ namespace State.Shared
 
         public void OnEnter()
         {
-            Debug.Log("Entering Idle State");
         }
 
         public void OnExit()

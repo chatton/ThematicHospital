@@ -1,5 +1,6 @@
 using Core;
 using Hospital.Locations;
+using Staff;
 using State.Shared;
 using UnityEngine;
 using UnityEngine.AI;
@@ -19,45 +20,32 @@ namespace State.Patient
         private readonly IReceptionVisitor _visitor;
         private readonly CharacterType _type;
         private readonly Animator _animator;
-        private readonly float _lookSpeed;
         private ReceptionDesk _targetReceptionDesk;
         private readonly RotationHandler _rotationHandler;
-        
+        private readonly IRoomSeeker _seeker;
+
         private static readonly int Walking = Animator.StringToHash("Walking");
         // private static readonly int Talking = Animator.StringToHash("Talking");
 
         public SeekingReceptionState(NavMeshAgent agent, IReceptionVisitor visitor, CharacterType type,
-            Animator animator, float lookSpeed)
+            Animator animator, IRoomSeeker seeker)
         {
             _agent = agent;
             _visitor = visitor;
             _type = type;
             _animator = animator;
-            _lookSpeed = lookSpeed;
             _rotationHandler = agent.GetComponent<RotationHandler>();
+            _seeker = seeker;
         }
 
-        // private static ReceptionDesk FindReception()
-        // {
-        //     // TODO: find closest reception
-        //     // TODO: handle no reception existing
-        //     return Object.FindObjectOfType<ReceptionDesk>();
-        // }
 
         public void OnEnter()
         {
             _animator.SetBool(Walking, true);
             _targetReceptionDesk = _visitor.TargetReceptionDesk();
-            if (_type == CharacterType.Patient)
-            {
-                _agent.SetDestination(_targetReceptionDesk.PatientPosition);
-            }
-            else
-            {
-                _agent.SetDestination(_targetReceptionDesk.ReceptionistPosition);
-            }
 
-
+            IPositionProvider provider = _seeker.GetPositionProvider();
+            _agent.SetDestination(provider.GetPosition(_type));
             _visitor.VisitReception();
         }
 

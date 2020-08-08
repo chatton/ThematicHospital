@@ -8,7 +8,7 @@ using UnityEngine.AI;
 
 namespace Staff
 {
-    public class Receptionist : MonoBehaviour, IReceptionVisitor
+    public class Receptionist : MonoBehaviour, IReceptionVisitor, IRoomSeeker
     {
         [SerializeField] private float lookSpeed = 200f;
 
@@ -36,8 +36,7 @@ namespace Staff
             IState idleState = new IdleState();
 
             IState seekingReceptionState =
-                new SeekingReceptionState(_agent, this, CharacterType.Staff, _animator, lookSpeed);
-
+                new SeekingReceptionState(_agent, this, CharacterType.Staff, _animator, this);
             sm.AddTransition(idleState, seekingReceptionState,
                 () => !_isCurrentlyManningStation && ReceptionDeskAvailable());
 
@@ -81,5 +80,10 @@ namespace Staff
         }
 
         #endregion
+
+        public IPositionProvider GetPositionProvider()
+        {
+            return _targetDesk;
+        }
     }
 }

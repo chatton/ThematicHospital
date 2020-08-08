@@ -1,7 +1,7 @@
 namespace Hospital.Locations
 {
-    public interface IRoomSeeker<TRoom>
+    public interface IRoomSeeker
     {
-        TRoom GetTargetRoom();
+        IPositionProvider GetPositionProvider();
     }
 }
