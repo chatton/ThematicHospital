@@ -8,7 +8,7 @@ using UnityEngine.AI;
 
 namespace Patients
 {
-    public class Patient : MonoBehaviour, IReceptionVisitor
+    public class Patient : MonoBehaviour, IReceptionVisitor, IRoomSeeker<DiagnosisRoom>
     {
         [SerializeField] private float lookSpeed = 200f;
         [SerializeField] public Condition condition;
@@ -23,6 +23,7 @@ namespace Patients
 
 
         private ReceptionDesk _targetDesk;
+        private DiagnosisRoom _targetRoom;
 
         private void Awake()
         {
@@ -64,9 +65,17 @@ namespace Patients
 
         private bool DiagnosisRoomIsAvailable()
         {
-            // TODO: find one that is available, not just one that exists
-            DiagnosisRoom room = FindObjectOfType<DiagnosisRoom>();
-            return room != null;
+            foreach (DiagnosisRoom room in FindObjectsOfType<DiagnosisRoom>())
+            {
+                if (room.HasRoomForPatient())
+                {
+                    _targetRoom = room;
+                    room.RegisterPatient(this);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private bool ReceptionDeskAvailable()
@@ -93,7 +102,8 @@ namespace Patients
             IState seekingReceptionState =
                 new SeekingReceptionState(_agent, this, CharacterType.Patient, _animator, lookSpeed);
 
-            IState seekingDiagnosisState = new SeekingDiagnosisRoomState(_agent, CharacterType.Patient, _animator);
+            IState seekingDiagnosisState =
+                new SeekingDiagnosisRoomState(_agent, CharacterType.Patient, _animator, this);
             IState seekingTreatmentState = new SeekingTreatmentRoomState(_agent, condition, CharacterType.Patient);
 
             // we want to go to the reception if we have not yet gone.
@@ -111,6 +121,11 @@ namespace Patients
             // all patients come into the world in the idle state.
             sm.SetState(idleState);
             return sm;
+        }
+
+        public DiagnosisRoom GetTargetRoom()
+        {
+            return _targetRoom;
         }
     }
 }

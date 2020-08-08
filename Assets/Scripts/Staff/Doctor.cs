@@ -9,7 +9,7 @@ using UnityEngine.AI;
 
 namespace Staff
 {
-    public class Doctor : MonoBehaviour
+    public class Doctor : MonoBehaviour, IRoomSeeker<DiagnosisRoom>
     {
         [SerializeField] private float lookSpeed = 200f;
 
@@ -19,6 +19,8 @@ namespace Staff
 
         private bool _isCurrentlyManningStation;
         public Patient CurrentPatient { get; set; }
+
+        private DiagnosisRoom _targetRoom;
 
         private void Awake()
         {
@@ -32,20 +34,30 @@ namespace Staff
             _stateMachine.Tick(Time.deltaTime);
         }
 
-        private bool ThereIsADiagnosticsRoomThatNeedsADoctor()
+        private bool ThereIsAFreeDiagnosticsRoomThatNeedsADoctor()
         {
-            return FindObjectsOfType<DiagnosisRoom>().Any(d => d.DoctorIsNeeded);
+            foreach (DiagnosisRoom room in FindObjectsOfType<DiagnosisRoom>())
+            {
+                if (room.HasRoomForStaff() && room.DoctorIsNeeded)
+                {
+                    _targetRoom = room;
+                    room.RegisterStaff(this);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private StateMachine BuildStateMachine()
         {
             StateMachine sm = new StateMachine();
             IState idleState = new IdleState();
-            IState seekingDiagnostics = new SeekingDiagnosisRoomState(_agent, CharacterType.Staff, _animator);
+            IState seekingDiagnostics = new SeekingDiagnosisRoomState(_agent, CharacterType.Staff, _animator, this);
             IState performDiagnosis = new PerformDiagnosisState(this);
 
             // If there are any diagnostics rooms that need a doctor, we will head there.
-            sm.AddTransition(idleState, seekingDiagnostics, ThereIsADiagnosticsRoomThatNeedsADoctor);
+            sm.AddTransition(idleState, seekingDiagnostics, ThereIsAFreeDiagnosticsRoomThatNeedsADoctor);
 
             // We can begin the diagnosis process as soon as we have a patient
             sm.AddTransition(seekingDiagnostics, performDiagnosis, () => CurrentPatient != null);
@@ -54,6 +66,11 @@ namespace Staff
             sm.AddTransition(performDiagnosis, idleState, () => CurrentPatient == null);
             sm.SetState(idleState);
             return sm;
+        }
+
+        public DiagnosisRoom GetTargetRoom()
+        {
+            return _targetRoom;
         }
     }
 }

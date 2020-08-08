@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: BurgerHead
   m_EditorClassIdentifier: 
   conditionName: BurgerHead
-  baseSecondToDiagnosis: 5
+  baseSecondToDiagnosis: 15
+  dieAfterSeconds: 0

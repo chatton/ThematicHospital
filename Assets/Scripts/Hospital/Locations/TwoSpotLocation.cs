@@ -2,11 +2,14 @@ using UnityEngine;
 
 namespace Hospital.Locations
 {
-    public class TwoSpotLocation<TStaff, TPatient> : MonoBehaviour
+    public abstract class TwoSpotLocation<TStaff, TPatient> : MonoBehaviour
     {
         protected TStaff StaffMember;
 
         protected TPatient Patient;
+
+        protected bool StaffMemberPreset;
+        protected bool PatientPresent;
 
         public void RegisterStaff(TStaff staff)
         {
@@ -37,6 +40,7 @@ namespace Hospital.Locations
                 if (staff.Equals(StaffMember))
                 {
                     StaffMember = default;
+                    StaffMemberPreset = false;
                 }
             }
 
@@ -47,8 +51,14 @@ namespace Hospital.Locations
                 if (patient.Equals(Patient))
                 {
                     Patient = default;
+                    PatientPresent = false;
                 }
             }
+        }
+
+
+        protected virtual void DoOnTriggerEnter(Collider other)
+        {
         }
 
         private void OnTriggerEnter(Collider other)
@@ -56,20 +66,18 @@ namespace Hospital.Locations
             TStaff staff = other.GetComponent<TStaff>();
             if (staff != null)
             {
-                if (StaffMember == null)
-                {
-                    StaffMember = staff;
-                }
+                StaffMember = staff;
+                StaffMemberPreset = true;
             }
 
             TPatient patient = other.GetComponent<TPatient>();
             if (patient != null)
             {
-                if (Patient == null)
-                {
-                    Patient = patient;
-                }
+                Patient = patient;
+                PatientPresent = true;
             }
+
+            DoOnTriggerEnter(other);
         }
     }
 }

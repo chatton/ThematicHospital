@@ -14,13 +14,16 @@ namespace State.Shared
         private DiagnosisRoom _room;
         private readonly RotationHandler _rotationHandler;
         private Animator _animator;
+        private readonly IRoomSeeker<DiagnosisRoom> _seeker;
         private static readonly int Walking = Animator.StringToHash("Walking");
 
-        public SeekingDiagnosisRoomState(NavMeshAgent agent, CharacterType type, Animator animator)
+        public SeekingDiagnosisRoomState(NavMeshAgent agent, CharacterType type, Animator animator,
+            IRoomSeeker<DiagnosisRoom> seeker)
         {
             _agent = agent;
             _type = type;
             _animator = animator;
+            _seeker = seeker;
             _rotationHandler = _agent.GetComponent<RotationHandler>();
         }
 
@@ -29,7 +32,8 @@ namespace State.Shared
         {
             // TODO: find one correctly
             _animator.SetBool(Walking, true);
-            _room = Object.FindObjectOfType<DiagnosisRoom>();
+
+            _room = _seeker.GetTargetRoom();
             if (_type == CharacterType.Patient)
             {
                 _agent.SetDestination(_room.PatientPosition);

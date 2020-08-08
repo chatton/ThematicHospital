@@ -5,16 +5,12 @@ using UnityEngine.Assertions;
 
 namespace Hospital.Locations
 {
-    public class DiagnosisRoom : MonoBehaviour
+    public class DiagnosisRoom : TwoSpotLocation<Doctor, Patient>
     {
         [SerializeField] private Transform patientLocation;
         [SerializeField] private Transform doctorLocation;
 
-
-        private Doctor _doctor;
-        private Patient _patient;
-        
-        public bool DoctorIsNeeded => _patient != null && _doctor == null;
+        public bool DoctorIsNeeded => Patient != null && StaffMember == null && PatientPresent;
 
         private void Awake()
         {
@@ -25,41 +21,13 @@ namespace Hospital.Locations
         public Vector3 PatientPosition => patientLocation.position;
         public Vector3 DoctorPosition => doctorLocation.position;
 
-        private void OnTriggerEnter(Collider other)
+
+        protected override void DoOnTriggerEnter(Collider other)
         {
-            Patient patient = other.GetComponent<Patient>();
-            if (patient != null)
+            if (Patient != null && StaffMember != null)
             {
-                _patient = patient;
-            }
-
-
-            Doctor doctor = other.GetComponent<Doctor>();
-            if (doctor != null)
-            {
-                _doctor = doctor;
-            }
-
-
-            if (_patient != null && _doctor != null)
-            {
-                Debug.Log("Assigning Dr: " + _doctor.name + " a patient of: " + _patient.name);
-                _doctor.CurrentPatient = _patient;
-            }
-        }
-
-        private void OnTriggerExit(Collider other)
-        {
-            Patient patient = other.GetComponent<Patient>();
-            if (patient != null)
-            {
-                _patient = null;
-            }
-
-            Doctor doctor = other.GetComponent<Doctor>();
-            if (doctor != null)
-            {
-                _doctor = null;
+                Debug.Log("Assigning Dr: " + StaffMember.name + " a patient of: " + Patient.name);
+                StaffMember.CurrentPatient = Patient;
             }
         }
     }

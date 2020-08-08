@@ -4,6 +4,7 @@ using Conditions;
 using Core;
 using State;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Assertions;
 
 namespace Staff
@@ -17,6 +18,7 @@ namespace Staff
         private readonly RotationHandler _rotationHandler;
         private Animator _animator;
         private static readonly int Talking = Animator.StringToHash("Talking");
+        private static readonly int Walking = Animator.StringToHash("Walking");
 
         public PerformDiagnosisState(Doctor doctor)
         {
@@ -35,7 +37,9 @@ namespace Staff
 
         public void OnExit()
         {
+            Debug.Log("Exiting diagnosis state!");
             _animator.SetBool(Talking, false);
+            _animator.SetBool(Walking, false);
         }
 
         public void Tick(float deltaTime)
@@ -43,6 +47,12 @@ namespace Staff
             if (_doctor.CurrentPatient.HasBeenDiagnosed)
             {
                 return;
+            }
+
+            if (_doctor.GetComponent<NavMeshAgent>().destination == _doctor.transform.position)
+            {
+                _animator.SetBool(Walking, false);
+                _doctor.GetComponent<RotationHandler>().SetTarget(_doctor.CurrentPatient.transform.position);
             }
 
             _elapsedTime += deltaTime;
