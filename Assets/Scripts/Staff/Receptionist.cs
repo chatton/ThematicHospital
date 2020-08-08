@@ -1,4 +1,5 @@
 using System;
+using Hospital.Locations;
 using State;
 using State.Patient;
 using State.Shared;
@@ -14,7 +15,7 @@ namespace Staff
         private StateMachine _stateMachine;
         private NavMeshAgent _agent;
         private Animator _animator;
-
+        private ReceptionDesk _targetDesk;
         private bool _isCurrentlyManningStation;
 
         private void Awake()
@@ -33,13 +34,34 @@ namespace Staff
         {
             StateMachine sm = new StateMachine();
             IState idleState = new IdleState();
+
             IState seekingReceptionState =
                 new SeekingReceptionState(_agent, this, CharacterType.Staff, _animator, lookSpeed);
-            sm.AddTransition(idleState, seekingReceptionState, () => !_isCurrentlyManningStation);
+
+            sm.AddTransition(idleState, seekingReceptionState,
+                () => !_isCurrentlyManningStation && ReceptionDeskAvailable());
+
             sm.SetState(idleState);
 
             return sm;
         }
+
+        private bool ReceptionDeskAvailable()
+        {
+            // find the first desk that that has a free slot
+            foreach (ReceptionDesk desk in FindObjectsOfType<ReceptionDesk>())
+            {
+                if (desk.IsFreeForReceptionist())
+                {
+                    _targetDesk = desk;
+                    desk.RegisterReceptionist(this);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
 
         #region IReceptionVisitor functions
 
@@ -51,6 +73,11 @@ namespace Staff
         public void LeaveReception()
         {
             _isCurrentlyManningStation = false;
+        }
+
+        public ReceptionDesk TargetReceptionDesk()
+        {
+            return _targetDesk;
         }
 
         #endregion

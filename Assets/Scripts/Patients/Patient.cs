@@ -1,5 +1,7 @@
-﻿using Conditions;
+﻿using System.Linq;
+using Conditions;
 using Hospital.Locations;
+using Staff;
 using State;
 using State.Patient;
 using State.Shared;
@@ -21,6 +23,8 @@ namespace Patients
 
         public bool HasBeenDiagnosed { get; set; }
 
+
+        private ReceptionDesk _targetDesk;
 
         private void Awake()
         {
@@ -47,6 +51,11 @@ namespace Patients
             IsCheckedIn = true;
         }
 
+        public ReceptionDesk TargetReceptionDesk()
+        {
+            return _targetDesk;
+        }
+
         # endregion
 
         public void CheckIn()
@@ -62,6 +71,21 @@ namespace Patients
             return room != null;
         }
 
+        private bool ReceptionDeskAvailable()
+        {
+            foreach (ReceptionDesk desk in FindObjectsOfType<ReceptionDesk>())
+            {
+                if (desk.IsFreeForPatient())
+                {
+                    _targetDesk = desk;
+                    desk.RegisterPatient(this);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
 
         private StateMachine BuildStateMachine()
         {
@@ -75,13 +99,13 @@ namespace Patients
             IState seekingTreatmentState = new SeekingTreatmentRoomState(_agent, condition, CharacterType.Patient);
 
             // we want to go to the reception if we have not yet gone.
-            sm.AddTransition(idleState, seekingReceptionState, () => !_hasGoneToReception);
+            sm.AddTransition(idleState, seekingReceptionState, () => !_hasGoneToReception && ReceptionDeskAvailable());
 
             // if the patient has been to reception, then we can go back to the idle state
             sm.AddTransition(seekingReceptionState, idleState, () => IsCheckedIn);
 
             // once the patient has been checked in, they need to seek a diagnosis room
-            sm.AddTransition(idleState, seekingDiagnosisState, DiagnosisRoomIsAvailable);
+            sm.AddTransition(idleState, seekingDiagnosisState, () => IsCheckedIn && DiagnosisRoomIsAvailable());
 
             // once the patient is diagnosed, they will then seek treatment
             sm.AddTransition(seekingDiagnosisState, seekingTreatmentState, () => HasBeenDiagnosed);

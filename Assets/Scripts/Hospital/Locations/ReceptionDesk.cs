@@ -12,14 +12,35 @@ namespace Hospital.Locations
         [SerializeField] private Transform receptionLocation;
         [SerializeField] private float secondsForCheckIn = 5f;
 
-
         private float _elapsedCheckInTime;
+        private Patient _patient;
+        private Receptionist _receptionist;
 
         public Vector3 PatientPosition => patientLocation.position;
         public Vector3 ReceptionistPosition => receptionLocation.position;
 
-        // _isManned should be true if there is a staff member at this reception table.
-        private bool _isManned;
+
+        public void RegisterPatient(Patient patient)
+        {
+            _patient = patient;
+        }
+
+
+        public void RegisterReceptionist(Receptionist receptionist)
+        {
+            _receptionist = receptionist;
+        }
+
+        public bool IsFreeForPatient()
+        {
+            return _patient == null;
+        }
+
+        public bool IsFreeForReceptionist()
+        {
+            return _receptionist == null;
+        }
+
 
         private void Awake()
         {
@@ -36,18 +57,33 @@ namespace Hospital.Locations
                 return;
             }
 
-            _isManned = true;
+            if (_receptionist == null)
+            {
+                _receptionist = receptionist;
+            }
         }
 
         private void OnTriggerExit(Collider other)
         {
+            // If a receptionist is exiting, they are no longer manning the station
             Receptionist receptionist = other.GetComponent<Receptionist>();
-            if (receptionist == null)
+            if (receptionist != null)
             {
-                return;
+                if (receptionist == _receptionist)
+                {
+                    _receptionist = null;
+                }
             }
 
-            _isManned = false;
+            // if a patient exits, we clear up the slot for a new patient
+            Patient patient = other.GetComponent<Patient>();
+            if (patient != null)
+            {
+                if (patient == _patient)
+                {
+                    _patient = null;
+                }
+            }
         }
 
         private void OnTriggerStay(Collider other)
@@ -64,12 +100,12 @@ namespace Hospital.Locations
                 return;
             }
 
-            if (_isManned)
+            if (_receptionist != null)
             {
                 _elapsedCheckInTime += Time.deltaTime;
             }
 
-            if (_isManned && _elapsedCheckInTime >= secondsForCheckIn)
+            if (_receptionist != null && _elapsedCheckInTime >= secondsForCheckIn)
             {
                 _elapsedCheckInTime = 0;
                 Debug.Log("Checking in patient: " + patient.name);

@@ -22,7 +22,9 @@ namespace State.Patient
         private readonly float _lookSpeed;
         private ReceptionDesk _targetReceptionDesk;
         private readonly RotationHandler _rotationHandler;
+        
         private static readonly int Walking = Animator.StringToHash("Walking");
+        // private static readonly int Talking = Animator.StringToHash("Talking");
 
         public SeekingReceptionState(NavMeshAgent agent, IReceptionVisitor visitor, CharacterType type,
             Animator animator, float lookSpeed)
@@ -35,17 +37,17 @@ namespace State.Patient
             _rotationHandler = agent.GetComponent<RotationHandler>();
         }
 
-        private static ReceptionDesk FindReception()
-        {
-            // TODO: find closest reception
-            // TODO: handle no reception existing
-            return Object.FindObjectOfType<ReceptionDesk>();
-        }
+        // private static ReceptionDesk FindReception()
+        // {
+        //     // TODO: find closest reception
+        //     // TODO: handle no reception existing
+        //     return Object.FindObjectOfType<ReceptionDesk>();
+        // }
 
         public void OnEnter()
         {
             _animator.SetBool(Walking, true);
-            _targetReceptionDesk = FindReception();
+            _targetReceptionDesk = _visitor.TargetReceptionDesk();
             if (_type == CharacterType.Patient)
             {
                 _agent.SetDestination(_targetReceptionDesk.PatientPosition);
@@ -63,6 +65,7 @@ namespace State.Patient
         {
             _rotationHandler.ClearTarget();
             _visitor.LeaveReception();
+            // _animator.SetBool(Talking, false);
         }
 
         public void Tick(float deltaTime)
@@ -70,6 +73,7 @@ namespace State.Patient
             if (_agent.transform.position == _agent.destination)
             {
                 _animator.SetBool(Walking, false);
+                // _animator.SetBool(Talking, true);
                 Vector3 target = _type == CharacterType.Staff
                     ? _targetReceptionDesk.PatientPosition
                     : _targetReceptionDesk.ReceptionistPosition;
