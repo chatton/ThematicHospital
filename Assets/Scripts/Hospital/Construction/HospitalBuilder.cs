@@ -1,96 +1,165 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Hospital.Construction
 {
     public class HospitalBuilder : MonoBehaviour
     {
-        [SerializeField] public Material selectedGroundMaterial;
-        [SerializeField] private RectTransform selectionBox;
-
+        [SerializeField] private Material selectedMaterial;
 
         private Vector2 _startPos;
         private Camera _camera;
-        private Tile[] _tiles;
 
+        private Tile _startTile;
+        private Tile _currTile;
+
+        private Tile[,] _tileArray;
+        private HashSet<Tile> _tilesSelected;
+        private HashSet<Tile> _allTiles;
 
         private void Awake()
         {
             _camera = Camera.main;
-            _tiles = FindObjectsOfType<Tile>();
-            Debug.Log("Tile: " + _tiles.Length);
+            _tilesSelected = new HashSet<Tile>();
+            _allTiles = new HashSet<Tile>();
+
+            Tile[] tiles = FindObjectsOfType<Tile>();
+            Array.ForEach(tiles, t => _allTiles.Add(t));
+            _tileArray = BuildTilesArray(_allTiles);
+        }
+
+        private static Tile[,] BuildTilesArray(IEnumerable<Tile> tiles)
+        {
+            Tile[,] arr = new Tile[10, 10];
+
+            foreach (Tile t in tiles)
+            {
+                Vector3 pos = t.transform.position;
+                arr[(int) pos.x, (int) pos.z] = t;
+            }
+
+            return arr;
         }
 
         private void Update()
         {
+            Debug.Log("HeRE");
             if (Input.GetMouseButtonDown(0))
             {
-                _startPos = Input.mousePosition;
+                _startTile = GetTileMouseIsOver();
             }
             else if (Input.GetMouseButton(0))
             {
-                UpdateSelectionBox(Input.mousePosition);
                 UpdateSelectedTiles();
             }
             else if (Input.GetMouseButtonUp(0))
             {
-                ReleaseSelectionBox();
+                DeselectTiles();
             }
         }
+
+        private void DeselectTiles()
+        {
+            foreach (Tile t in _tilesSelected)
+            {
+                t.Deselect();
+                t.UpdateMaterial(selectedMaterial);
+            }
+
+            _tilesSelected.Clear();
+        }
+
+        private Tile GetTileMouseIsOver()
+        {
+            Vector2 mousePos = Input.mousePosition;
+            Ray ray = _camera.ScreenPointToRay(mousePos);
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                return hit.collider.GetComponentInParent<Tile>();
+            }
+
+            return null;
+        }
+
 
         private void UpdateSelectedTiles()
         {
-            // bottom left of selection box
-            Vector2 min = selectionBox.anchoredPosition - (selectionBox.sizeDelta / 2);
-            // top left
-            Vector2 max = selectionBox.anchoredPosition + (selectionBox.sizeDelta / 2);
-
-            foreach (Tile t in _tiles)
+            _currTile = GetTileMouseIsOver();
+            if (_currTile == null)
             {
-                Vector3 screenPos = _camera.WorldToScreenPoint(t.transform.position);
-                if (screenPos.x > min.x && screenPos.x < max.x && screenPos.y > min.y && screenPos.y < max.y)
-                {
-                    t.Select();
-                }
-                else
+                return;
+            }
+
+            int startX = (int) _startTile.transform.position.x;
+            int startZ = (int) _startTile.transform.position.z;
+
+            int endX = (int) _currTile.transform.position.x;
+            int endZ = (int) _currTile.transform.position.z;
+
+            HashSet<Tile> tilesThatWereSelected = HighlightTilesInRange(startX, endX, startZ, endZ);
+            foreach (Tile t in _allTiles)
+            {
+                if (!tilesThatWereSelected.Contains(t))
                 {
                     t.Deselect();
                 }
             }
         }
 
-        private void UpdateSelectionBox(Vector2 currentMousePos)
+        private HashSet<Tile> HighlightTilesInRange(int startX, int endX, int startZ, int endZ)
         {
-            selectionBox.gameObject.SetActive(true);
-
-            float width = currentMousePos.x - _startPos.x;
-            float height = currentMousePos.y - _startPos.y;
-
-            selectionBox.sizeDelta = new Vector2(Mathf.Abs(width), Mathf.Abs(height));
-            selectionBox.anchoredPosition = _startPos + new Vector2(width / 2, height / 2);
-        }
-
-        private void ReleaseSelectionBox()
-        {
-            selectionBox.gameObject.SetActive(false);
-
-            // bottom left of selection box
-            Vector2 min = selectionBox.anchoredPosition - (selectionBox.sizeDelta / 2);
-            // top left
-            Vector2 max = selectionBox.anchoredPosition + (selectionBox.sizeDelta / 2);
-
-            foreach (Tile t in _tiles)
+            _tilesSelected.Clear();
+            if (startX < endX)
             {
-                Vector3 screenPos = _camera.WorldToScreenPoint(t.transform.position);
-                if (screenPos.x > min.x && screenPos.x < max.x && screenPos.y > min.y && screenPos.y < max.y)
+                for (int i = startX; i <= endX; i++)
                 {
-                    t.GetComponentInChildren<MeshRenderer>().material = selectedGroundMaterial;
-                    t.Deselect();
+                    if (startZ < endZ)
+                    {
+                        for (int j = startZ; j <= endZ; j++)
+                        {
+                            Tile t = _tileArray[i, j];
+                            t.Select();
+                            _tilesSelected.Add(t);
+                        }
+                    }
+                    else
+                    {
+                        for (int j = endZ; j <= startZ; j++)
+                        {
+                            Tile t = _tileArray[i, j];
+                            t.Select();
+                            _tilesSelected.Add(t);
+                        }
+                    }
                 }
             }
+            else
+            {
+                for (int i = endX; i <= startX; i++)
+                {
+                    if (startZ < endZ)
+                    {
+                        for (int j = startZ; j <= endZ; j++)
+                        {
+                            Tile t = _tileArray[i, j];
+                            t.Select();
+                            _tilesSelected.Add(t);
+                        }
+                    }
+                    else
+                    {
+                        for (int j = endZ; j <= startZ; j++)
+                        {
+                            Tile t = _tileArray[i, j];
+                            t.Select();
+                            _tilesSelected.Add(t);
+                        }
+                    }
+                }
+            }
+
+            return _tilesSelected;
         }
     }
-
 }
