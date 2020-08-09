@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: MetalHead
   m_EditorClassIdentifier: 
   conditionName: MetalHead
+  conditionType: 2
   baseSecondToDiagnosis: 2
   dieAfterSeconds: 0
