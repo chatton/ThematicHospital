@@ -12,7 +12,7 @@ namespace State.Staff
         private readonly NavMeshAgent _agent;
         private readonly IRoomSeeker _seeker;
         private readonly Animator _animator;
-        
+
         // private readonly IMachineProvider _machineProvider;
 
         // private IPositionProvider _positionProvider;
@@ -20,13 +20,11 @@ namespace State.Staff
         private static readonly int Walking = Animator.StringToHash("Walking");
         private static readonly int On = Animator.StringToHash("On");
 
-        public PerformTreatmentState(NavMeshAgent agent, IRoomSeeker seeker, Animator animator,
-            IMachineProvider machineProvider)
+        public PerformTreatmentState(NavMeshAgent agent, IRoomSeeker seeker, Animator animator)
         {
             _agent = agent;
             _seeker = seeker;
             _animator = animator;
-            // _machineProvider = machineProvider;
         }
 
         public void OnEnter()

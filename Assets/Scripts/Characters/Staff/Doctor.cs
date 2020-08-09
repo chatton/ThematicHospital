@@ -6,87 +6,45 @@ using State;
 using State.Patient;
 using State.Shared;
 using State.Staff;
-using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.Assertions;
 
 namespace Characters.Staff
 {
-    public class Doctor : MonoBehaviour, IRoomSeeker, IMachineProvider
+    public class Doctor : BaseStaff, IRoomSeeker
     {
-        private StateMachine _stateMachine;
-        private NavMeshAgent _agent;
-        private Animator _animator;
-
         private bool _isCurrentlyManningStation;
         public Patient CurrentPatient { get; set; }
 
         private Machine _machine;
-        private IPositionProvider _positionProvider;
-        private Room _room;
 
-        // private DiagnosisRoom _targetRoom;
-
-        private void Awake()
+        private bool ThereIsARoomWhichRequiredADoctor(RoomType roomType)
         {
-            _agent = GetComponent<NavMeshAgent>();
-            _animator = GetComponentInChildren<Animator>();
-            _stateMachine = BuildStateMachine();
-        }
-
-        private void Update()
-        {
-            _stateMachine.Tick(Time.deltaTime);
-        }
-
-        private bool ThereIsAFreeDiagnosticsRoomThatNeedsADoctor()
-        {
-            foreach (Room room in FindObjectsOfType<Room>())
+            Room room = FindAvailableRoomWithDoctorNeededOfType(roomType);
+            if (room == null)
             {
-                if (room.HasRoomForStaff() && room.DoctorIsNeeded)
-                {
-                    // _positionProvider = room;
-                    _room = room;
-                    room.RegisterStaff(this);
-
-                    return true;
-                }
+                return false;
             }
 
-            return false;
+            _room = room;
+            room.RegisterStaff(this);
+            return true;
         }
 
-        private bool ThereIsATreatmentRoomThatNeedsADoctor()
-        {
-            foreach (TreatmentRoom room in FindObjectsOfType<TreatmentRoom>())
-            {
-                if (room.HasRoomForStaff() && room.DoctorIsNeeded)
-                {
-                    _positionProvider = room;
-                    // _room = room;
-                    room.RegisterStaff(this);
-                    _machine = room.GetComponentInChildren<Machine>();
-                    Assert.IsNotNull(_machine, "The machine of treatment room: " + room.name + " was null!");
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private StateMachine BuildStateMachine()
+        protected override StateMachine BuildStateMachine()
         {
             StateMachine sm = new StateMachine();
             IState idleState = new IdleState();
             IState seekingDiagnostics = new SeekingDiagnosisRoomState(_agent, CharacterType.Staff, _animator, this);
             IState performDiagnosis = new PerformDiagnosisState(this);
-            IState preformTreatmentState = new PerformTreatmentState(_agent, this, _animator, this);
+            IState preformTreatmentState = new PerformTreatmentState(_agent, this, _animator);
 
 
-            sm.AddTransition(idleState, preformTreatmentState, ThereIsATreatmentRoomThatNeedsADoctor);
+            sm.AddTransition(idleState, preformTreatmentState,
+                () => ThereIsARoomWhichRequiredADoctor(RoomType.Treatment));
 
             // If there are any diagnostics rooms that need a doctor, we will head there.
-            sm.AddTransition(idleState, seekingDiagnostics, ThereIsAFreeDiagnosticsRoomThatNeedsADoctor);
+            sm.AddTransition(idleState, seekingDiagnostics,
+                () => ThereIsARoomWhichRequiredADoctor(RoomType.Diagnosis));
 
             // We can begin the diagnosis process as soon as we have a patient
             sm.AddTransition(seekingDiagnostics, performDiagnosis, () => CurrentPatient != null);
@@ -97,21 +55,6 @@ namespace Characters.Staff
 
             sm.SetState(idleState);
             return sm;
-        }
-
-        public IPositionProvider GetPositionProvider()
-        {
-            return _positionProvider;
-        }
-
-        public Room GetRoom()
-        {
-            return _room;
-        }
-
-        public Machine GetMachine()
-        {
-            return _machine;
         }
     }
 }

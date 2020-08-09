@@ -100,6 +100,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patientLocation: {fileID: 894599798124267615}
   staffLocation: {fileID: 894599797153429927}
+  roomType: 1
   treatableCondition: 2
 --- !u!1 &894599798124267614
 GameObject:

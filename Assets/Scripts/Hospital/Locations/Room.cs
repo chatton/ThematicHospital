@@ -1,5 +1,6 @@
 using Characters.Patients;
 using Characters.Staff;
+using Conditions;
 using Staff;
 using State.Patient;
 using UnityEngine;
@@ -9,14 +10,14 @@ namespace Hospital.Locations
 {
     public class Room : TwoSpotLocation<Doctor, Patient>
     {
-        // [SerializeField] private Transform patientLocation;
-        // [SerializeField] private Transform doctorLocation;
+        [SerializeField] private RoomType roomType;
 
         // the condition that this room can treat
         [SerializeField] private ConditionType treatableCondition;
 
         private Machine _machine;
         public bool DoctorIsNeeded => Patient != null && StaffMember == null && PatientPresent;
+        public RoomType Type => roomType;
 
         private void Awake()
         {
@@ -52,6 +53,16 @@ namespace Hospital.Locations
 
             Assert.IsNotNull(_machine, "Machine was null!");
             return _machine;
+        }
+
+        public bool CanTreat(Condition condition)
+        {
+            if (treatableCondition == ConditionType.None)
+            {
+                return false;
+            }
+
+            return treatableCondition == condition.conditionType;
         }
     }
 }

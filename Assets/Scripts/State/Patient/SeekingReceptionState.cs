@@ -23,14 +23,11 @@ namespace State.Patient
         private readonly CharacterType _type;
         private readonly Animator _animator;
         private readonly ILocationSeeker<Receptionist, Characters.Patients.Patient> _locationSeeker;
-        private ReceptionDesk _targetReceptionDesk;
         private readonly RotationHandler _rotationHandler;
 
         private TwoSpotLocation<Receptionist, Characters.Patients.Patient> _location;
-        // private readonly IRoomSeeker _seeker;
 
         private static readonly int Walking = Animator.StringToHash("Walking");
-        // private static readonly int Talking = Animator.StringToHash("Talking");
 
         public SeekingReceptionState(NavMeshAgent agent, IReceptionVisitor visitor, CharacterType type,
             Animator animator, ILocationSeeker<Receptionist, Characters.Patients.Patient> locationSeeker)
@@ -47,11 +44,7 @@ namespace State.Patient
         public void OnEnter()
         {
             _animator.SetBool(Walking, true);
-            _targetReceptionDesk = _visitor.TargetReceptionDesk();
-
             _location = _locationSeeker.GetLocation();
-            
-            // IPositionProvider provider = _seeker.GetPositionProvider();
             _agent.SetDestination(_location.GetPosition(_type));
             _visitor.VisitReception();
         }
@@ -60,7 +53,6 @@ namespace State.Patient
         {
             _rotationHandler.ClearTarget();
             _visitor.LeaveReception();
-            // _animator.SetBool(Talking, false);
         }
 
         public void Tick(float deltaTime)

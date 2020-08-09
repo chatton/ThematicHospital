@@ -10,40 +10,34 @@ using UnityEngine.AI;
 
 namespace Characters.Patients
 {
-    public class Patient : MonoBehaviour, IReceptionVisitor, IRoomSeeker, ILocationSeeker<Receptionist, Patient>
+    public class Patient : Character, IReceptionVisitor, IRoomSeeker, ILocationSeeker<Receptionist, Patient>
     {
-        [SerializeField] private float lookSpeed = 200f;
         [SerializeField] public Condition condition;
 
-        private StateMachine _stateMachine;
-        private NavMeshAgent _agent;
+        // private StateMachine _stateMachine;
+        // private NavMeshAgent _agent;
         private bool _hasGoneToReception;
-        private Animator _animator;
+
+        // private Animator _animator;
         public bool IsCheckedIn { get; private set; }
 
         public bool HasBeenDiagnosed { get; set; }
 
-
-        private Room _room;
-        private IPositionProvider _positionProvider;
-
         private ReceptionDesk _targetDesk;
-
-        // private DiagnosisRoom _targetRoom;
         private TreatmentRoom _targetTreatmentRoomRoom;
 
-        private void Awake()
-        {
-            _agent = GetComponent<NavMeshAgent>();
-            _animator = GetComponentInChildren<Animator>();
-            _stateMachine = BuildStateMachine();
-        }
+        // private void Awake()
+        // {
+        // _agent = GetComponent<NavMeshAgent>();
+        // _animator = GetComponentInChildren<Animator>();
+        // _stateMachine = BuildStateMachine();
+        // }
 
 
-        private void Update()
-        {
-            _stateMachine.Tick(Time.deltaTime);
-        }
+        // private void Update()
+        // {
+        // _stateMachine.Tick(Time.deltaTime);
+        // }
 
         #region IReceptionVisitor functions
 
@@ -74,9 +68,8 @@ namespace Characters.Patients
         {
             foreach (Room room in FindObjectsOfType<Room>())
             {
-                if (room.HasRoomForPatient())
+                if (room.HasRoomForPatient() && room.Type == RoomType.Diagnosis)
                 {
-                    // _positionProvider = room;
                     _room = room;
                     room.RegisterPatient(this);
                     return true;
@@ -96,7 +89,6 @@ namespace Characters.Patients
                 if (desk.HasRoomForPatient())
                 {
                     _targetDesk = desk;
-                    _positionProvider = desk;
                     desk.RegisterPatient(this);
                     return true;
                 }
@@ -113,13 +105,13 @@ namespace Characters.Patients
                 return false;
             }
 
-            TreatmentRoom[] treatmentRooms = FindObjectsOfType<TreatmentRoom>();
-            foreach (TreatmentRoom room in treatmentRooms)
+            Room[] treatmentRooms = FindObjectsOfType<Room>().Where(r => r.Type == RoomType.Treatment).ToArray();
+            foreach (Room room in treatmentRooms)
             {
                 if (room.CanTreat(condition) && room.HasRoomForPatient())
                 {
+                    _room = room;
                     room.RegisterPatient(this);
-                    _positionProvider = room;
                     return true;
                 }
             }
@@ -127,7 +119,7 @@ namespace Characters.Patients
             return false;
         }
 
-        private StateMachine BuildStateMachine()
+        protected override StateMachine BuildStateMachine()
         {
             StateMachine sm = new StateMachine();
 
@@ -171,27 +163,6 @@ namespace Characters.Patients
             return _room;
         }
 
-
-        public IPositionProvider GetPositionProvider()
-        {
-            return _positionProvider;
-            // if (IsCheckedIn)
-            // {
-            //     return _targetRoom;
-            // }
-            // else if (_targetDesk != null)
-            // {
-            //     return _targetDesk;
-            // }
-            //
-            // throw new Exception(" There was no position provider!");
-        }
-
-
-        // TreatmentRoom<Doctor, Patient> IRoomSeeker<TreatmentRoom<Doctor, Patient>>.GetTargetRoom()
-        // {
-        //     return _targetTreatmentRoomRoom;
-        // }
         public TwoSpotLocation<Receptionist, Patient> GetLocation()
         {
             return _targetDesk;

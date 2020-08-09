@@ -1,33 +1,22 @@
-using System;
+using Characters;
 using Characters.Patients;
 using Characters.Staff;
-using Conditions;
-using Staff;
-using State.Patient;
 using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace Hospital.Locations
 {
-    // public class ReceptionDesk : TwoSpotLocation<Receptionist, Patient>, IPositionProvider
     public class ReceptionDesk : TwoSpotLocation<Receptionist, Patient>, IPositionProvider
     {
-        // [SerializeField] private Transform patientLocation;
-        // [SerializeField] private Transform receptionLocation;
         [SerializeField] private float secondsForCheckIn = 5f;
 
         private float _elapsedCheckInTime;
-
-        // public Vector3 PatientPosition => patientLocation.position;
-        // public Vector3 ReceptionistPosition => receptionLocation.position;
-        //
 
         private void Awake()
         {
             Assert.IsNotNull(patientLocation, "Patient location was not set!");
             Assert.IsNotNull(staffLocation, "Receptionist location was not set!");
         }
-
 
         private void OnTriggerStay(Collider other)
         {
@@ -55,17 +44,5 @@ namespace Hospital.Locations
                 patient.CheckIn();
             }
         }
-
-        // public Vector3 GetPosition(CharacterType type)
-        // {
-        //     if (type == CharacterType.Patient)
-        //     {
-        //         return PatientPosition;
-        //     }
-        //     else
-        //     {
-        //         return ReceptionistPosition;
-        //     }
-        // }
     }
 }

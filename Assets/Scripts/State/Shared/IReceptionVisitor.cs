@@ -6,6 +6,5 @@ namespace State.Shared
     {
         void VisitReception();
         void LeaveReception();
-        ReceptionDesk TargetReceptionDesk();
     }
 }

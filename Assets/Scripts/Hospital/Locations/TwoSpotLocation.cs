@@ -1,10 +1,11 @@
+using Characters;
 using State.Patient;
 using UnityEngine;
 
 namespace Hospital.Locations
 {
     public abstract class TwoSpotLocation<TStaff, TPatient> : MonoBehaviour
-        where TStaff : MonoBehaviour where TPatient : MonoBehaviour
+        where TStaff : BaseStaff where TPatient : MonoBehaviour
     {
         [SerializeField] protected Transform patientLocation;
         [SerializeField] protected Transform staffLocation;

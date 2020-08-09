@@ -8,10 +8,10 @@ namespace Characters
     public abstract class Character : MonoBehaviour
     {
         private StateMachine _stateMachine;
-        private NavMeshAgent _agent;
+        protected NavMeshAgent _agent;
         private bool _hasGoneToReception;
-        private Animator _animator;
-        private Room _room;
+        protected Animator _animator;
+        protected Room _room;
 
         private void Awake()
         {
@@ -28,6 +28,11 @@ namespace Characters
         private void Update()
         {
             _stateMachine.Tick(Time.deltaTime);
+        }
+        
+        public Room GetRoom()
+        {
+            return _room;
         }
 
         protected abstract StateMachine BuildStateMachine();
