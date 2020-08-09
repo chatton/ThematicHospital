@@ -1,17 +1,16 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
+using Characters.Staff;
 using Conditions;
 using Hospital.Locations;
-using Staff;
 using State;
 using State.Patient;
 using State.Shared;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Patients
+namespace Characters.Patients
 {
-    public class Patient : MonoBehaviour, IReceptionVisitor, IRoomSeeker
+    public class Patient : MonoBehaviour, IReceptionVisitor, IRoomSeeker, ILocationSeeker<Receptionist, Patient>
     {
         [SerializeField] private float lookSpeed = 200f;
         [SerializeField] public Condition condition;
@@ -25,6 +24,7 @@ namespace Patients
         public bool HasBeenDiagnosed { get; set; }
 
 
+        private Room _room;
         private IPositionProvider _positionProvider;
 
         private ReceptionDesk _targetDesk;
@@ -72,11 +72,12 @@ namespace Patients
 
         private bool DiagnosisRoomIsAvailable()
         {
-            foreach (DiagnosisRoom room in FindObjectsOfType<DiagnosisRoom>())
+            foreach (Room room in FindObjectsOfType<Room>())
             {
                 if (room.HasRoomForPatient())
                 {
-                    _positionProvider = room;
+                    // _positionProvider = room;
+                    _room = room;
                     room.RegisterPatient(this);
                     return true;
                 }
@@ -165,6 +166,12 @@ namespace Patients
             return sm;
         }
 
+        public Room GetRoom()
+        {
+            return _room;
+        }
+
+
         public IPositionProvider GetPositionProvider()
         {
             return _positionProvider;
@@ -185,5 +192,9 @@ namespace Patients
         // {
         //     return _targetTreatmentRoomRoom;
         // }
+        public TwoSpotLocation<Receptionist, Patient> GetLocation()
+        {
+            return _targetDesk;
+        }
     }
 }

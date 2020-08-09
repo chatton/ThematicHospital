@@ -82,7 +82,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   patientLocation: {fileID: 3129784930059109676}
-  doctorLocation: {fileID: 3129784929356444884}
+  staffLocation: {fileID: 3129784929356444884}
+  treatableCondition: 0
 --- !u!65 &3001842973405004535
 BoxCollider:
   m_ObjectHideFlags: 0

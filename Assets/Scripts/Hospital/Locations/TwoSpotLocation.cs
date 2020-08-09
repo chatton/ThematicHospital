@@ -1,9 +1,17 @@
+using State.Patient;
 using UnityEngine;
 
 namespace Hospital.Locations
 {
     public abstract class TwoSpotLocation<TStaff, TPatient> : MonoBehaviour
+        where TStaff : MonoBehaviour where TPatient : MonoBehaviour
     {
+        [SerializeField] protected Transform patientLocation;
+        [SerializeField] protected Transform staffLocation;
+
+        // public Vector3 PatientPosition => patientLocation.position;
+        // public Vector3 StaffPosition => staffLocation.position;
+
         protected TStaff StaffMember;
 
         protected TPatient Patient;
@@ -30,6 +38,26 @@ namespace Hospital.Locations
         public bool HasRoomForPatient()
         {
             return Patient == null;
+        }
+
+        public Vector3 GetPosition(CharacterType type)
+        {
+            if (type == CharacterType.Patient)
+            {
+                return patientLocation.position;
+            }
+
+            return staffLocation.position;
+        }
+
+        public Vector3 GetLookPosition(CharacterType type)
+        {
+            if (type == CharacterType.Staff)
+            {
+                return patientLocation.position;
+            }
+
+            return staffLocation.position;
         }
 
         private void OnTriggerExit(Collider other)

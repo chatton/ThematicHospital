@@ -1,3 +1,5 @@
+using Characters.Staff;
+using Characters.Patients;
 using Core;
 using Hospital.Locations;
 using Staff;
@@ -20,22 +22,25 @@ namespace State.Patient
         private readonly IReceptionVisitor _visitor;
         private readonly CharacterType _type;
         private readonly Animator _animator;
+        private readonly ILocationSeeker<Receptionist, Characters.Patients.Patient> _locationSeeker;
         private ReceptionDesk _targetReceptionDesk;
         private readonly RotationHandler _rotationHandler;
-        private readonly IRoomSeeker _seeker;
+
+        private TwoSpotLocation<Receptionist, Characters.Patients.Patient> _location;
+        // private readonly IRoomSeeker _seeker;
 
         private static readonly int Walking = Animator.StringToHash("Walking");
         // private static readonly int Talking = Animator.StringToHash("Talking");
 
         public SeekingReceptionState(NavMeshAgent agent, IReceptionVisitor visitor, CharacterType type,
-            Animator animator, IRoomSeeker seeker)
+            Animator animator, ILocationSeeker<Receptionist, Characters.Patients.Patient> locationSeeker)
         {
             _agent = agent;
             _visitor = visitor;
             _type = type;
             _animator = animator;
+            _locationSeeker = locationSeeker;
             _rotationHandler = agent.GetComponent<RotationHandler>();
-            _seeker = seeker;
         }
 
 
@@ -44,8 +49,10 @@ namespace State.Patient
             _animator.SetBool(Walking, true);
             _targetReceptionDesk = _visitor.TargetReceptionDesk();
 
-            IPositionProvider provider = _seeker.GetPositionProvider();
-            _agent.SetDestination(provider.GetPosition(_type));
+            _location = _locationSeeker.GetLocation();
+            
+            // IPositionProvider provider = _seeker.GetPositionProvider();
+            _agent.SetDestination(_location.GetPosition(_type));
             _visitor.VisitReception();
         }
 
@@ -61,11 +68,7 @@ namespace State.Patient
             if (_agent.transform.position == _agent.destination)
             {
                 _animator.SetBool(Walking, false);
-                // _animator.SetBool(Talking, true);
-                Vector3 target = _type == CharacterType.Staff
-                    ? _targetReceptionDesk.PatientPosition
-                    : _targetReceptionDesk.ReceptionistPosition;
-                _rotationHandler.SetTarget(target);
+                _rotationHandler.SetTarget(_location.GetLookPosition(_type));
             }
         }
     }

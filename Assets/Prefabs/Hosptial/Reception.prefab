@@ -45,7 +45,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6397620793123511648
 Transform:
   m_ObjectHideFlags: 0
@@ -582,12 +582,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a85e011223341c2969c351976528ec6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LinePos:
-  - {fileID: 6624287235031278705}
-  - {fileID: 5618732691297616865}
-  - {fileID: 7919613215088605467}
   patientLocation: {fileID: 3009649603800912589}
-  receptionLocation: {fileID: 9002600974992140548}
+  staffLocation: {fileID: 9002600974992140548}
   secondsForCheckIn: 5
 --- !u!65 &3009649603339347790
 BoxCollider:

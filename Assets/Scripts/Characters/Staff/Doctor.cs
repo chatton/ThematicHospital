@@ -1,7 +1,7 @@
-using System.Linq;
+using Characters.Patients;
 using Hospital;
 using Hospital.Locations;
-using Patients;
+using Staff;
 using State;
 using State.Patient;
 using State.Shared;
@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Assertions;
 
-namespace Staff
+namespace Characters.Staff
 {
     public class Doctor : MonoBehaviour, IRoomSeeker, IMachineProvider
     {
@@ -23,6 +23,7 @@ namespace Staff
 
         private Machine _machine;
         private IPositionProvider _positionProvider;
+        private Room _room;
 
         // private DiagnosisRoom _targetRoom;
 
@@ -40,11 +41,12 @@ namespace Staff
 
         private bool ThereIsAFreeDiagnosticsRoomThatNeedsADoctor()
         {
-            foreach (DiagnosisRoom room in FindObjectsOfType<DiagnosisRoom>())
+            foreach (Room room in FindObjectsOfType<Room>())
             {
                 if (room.HasRoomForStaff() && room.DoctorIsNeeded)
                 {
-                    _positionProvider = room;
+                    // _positionProvider = room;
+                    _room = room;
                     room.RegisterStaff(this);
 
                     return true;
@@ -61,6 +63,7 @@ namespace Staff
                 if (room.HasRoomForStaff() && room.DoctorIsNeeded)
                 {
                     _positionProvider = room;
+                    // _room = room;
                     room.RegisterStaff(this);
                     _machine = room.GetComponentInChildren<Machine>();
                     Assert.IsNotNull(_machine, "The machine of treatment room: " + room.name + " was null!");
@@ -99,6 +102,11 @@ namespace Staff
         public IPositionProvider GetPositionProvider()
         {
             return _positionProvider;
+        }
+
+        public Room GetRoom()
+        {
+            return _room;
         }
 
         public Machine GetMachine()

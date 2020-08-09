@@ -7,7 +7,7 @@ using Util;
 
 namespace State.Shared
 {
-    public class SeekingDiagnosisRoomState : IState
+    public class PatientSeekingRoomState
     {
         private readonly NavMeshAgent _agent;
         private readonly CharacterType _type;
@@ -19,7 +19,7 @@ namespace State.Shared
         private readonly IRoomSeeker _seeker;
         private static readonly int Walking = Animator.StringToHash("Walking");
 
-        public SeekingDiagnosisRoomState(NavMeshAgent agent, CharacterType type, Animator animator, IRoomSeeker seeker)
+        public PatientSeekingRoomState(NavMeshAgent agent, CharacterType type, Animator animator, IRoomSeeker seeker)
         {
             _agent = agent;
             _type = type;

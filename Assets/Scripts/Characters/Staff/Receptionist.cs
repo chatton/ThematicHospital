@@ -1,4 +1,4 @@
-using System;
+using Characters.Patients;
 using Hospital.Locations;
 using State;
 using State.Patient;
@@ -6,12 +6,10 @@ using State.Shared;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Staff
+namespace Characters.Staff
 {
-    public class Receptionist : MonoBehaviour, IReceptionVisitor, IRoomSeeker
+    public class Receptionist : MonoBehaviour, IReceptionVisitor, ILocationSeeker<Receptionist, Patient>
     {
-        [SerializeField] private float lookSpeed = 200f;
-
         private StateMachine _stateMachine;
         private NavMeshAgent _agent;
         private Animator _animator;
@@ -82,6 +80,16 @@ namespace Staff
         #endregion
 
         public IPositionProvider GetPositionProvider()
+        {
+            return _targetDesk;
+        }
+
+        public Room GetRoom()
+        {
+            return null;
+        }
+
+        public TwoSpotLocation<Receptionist, Patient> GetLocation()
         {
             return _targetDesk;
         }

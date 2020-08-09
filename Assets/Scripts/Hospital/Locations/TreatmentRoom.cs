@@ -1,6 +1,7 @@
 using System;
+using Characters.Patients;
+using Characters.Staff;
 using Conditions;
-using Patients;
 using Staff;
 using State.Patient;
 using UnityEngine;

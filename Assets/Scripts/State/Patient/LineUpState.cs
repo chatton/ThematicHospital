@@ -7,14 +7,14 @@ namespace State.Patient
 {
     public class LineUpState : IState
     {
-        private Patients.Patient _patient;
+        private Characters.Patients.Patient _patient;
         private ReceptionDesk _desk;
         private NavMeshAgent _agent;
         private Animator _animator;
         private static readonly int Walking = Animator.StringToHash("Walking");
         private RotationHandler _rotator;
 
-        public LineUpState(Patients.Patient patient)
+        public LineUpState(Characters.Patients.Patient patient)
         {
             _patient = patient;
 
@@ -36,11 +36,11 @@ namespace State.Patient
 
         public void Tick(float deltaTime)
         {
-            if (_agent.transform.position == _agent.destination)
-            {
-                _rotator.SetTarget(_desk.ReceptionistPosition);
-                _animator.SetBool(Walking, false);
-            }
+            // if (_agent.transform.position == _agent.destination)
+            // {
+            //     _rotator.SetTarget(_desk.ReceptionistPosition);
+            //     _animator.SetBool(Walking, false);
+            // }
         }
     }
 }
