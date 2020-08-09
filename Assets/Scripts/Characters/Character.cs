@@ -9,7 +9,6 @@ namespace Characters
     {
         private StateMachine _stateMachine;
         protected NavMeshAgent _agent;
-        private bool _hasGoneToReception;
         protected Animator _animator;
         protected Room _room;
 
@@ -29,7 +28,7 @@ namespace Characters
         {
             _stateMachine.Tick(Time.deltaTime);
         }
-        
+
         public Room GetRoom()
         {
             return _room;

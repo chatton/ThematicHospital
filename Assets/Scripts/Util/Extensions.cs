@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -13,6 +14,24 @@ namespace Util
                 Quaternion.LookRotation(lTargetDir),
                 step);
         }
+
+        public static T[] FindClosestObjectsOfType<T>(this GameObject go) where T : MonoBehaviour
+        {
+            return Object.FindObjectsOfType<T>()
+                .OrderBy(d => Vector3.Distance(go.transform.position, d.transform.position)).ToArray();
+        }
+
+        public static T FindClosestObjectOfType<T>(this GameObject go) where T : MonoBehaviour
+        {
+            T[] all = FindClosestObjectsOfType<T>(go);
+            if (all.Length == 0)
+            {
+                return null;
+            }
+
+            return all[0];
+        }
+
 
         public static bool HasReachedDestination(this NavMeshAgent agent)
         {

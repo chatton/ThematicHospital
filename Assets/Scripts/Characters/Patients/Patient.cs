@@ -7,6 +7,7 @@ using State.Patient;
 using State.Shared;
 using UnityEngine;
 using UnityEngine.AI;
+using static Util.Extensions;
 
 namespace Characters.Patients
 {
@@ -14,11 +15,8 @@ namespace Characters.Patients
     {
         [SerializeField] public Condition condition;
 
-        // private StateMachine _stateMachine;
-        // private NavMeshAgent _agent;
         private bool _hasGoneToReception;
 
-        // private Animator _animator;
         public bool IsCheckedIn { get; private set; }
 
         public bool HasBeenDiagnosed { get; set; }
@@ -26,18 +24,6 @@ namespace Characters.Patients
         private ReceptionDesk _targetDesk;
         private TreatmentRoom _targetTreatmentRoomRoom;
 
-        // private void Awake()
-        // {
-        // _agent = GetComponent<NavMeshAgent>();
-        // _animator = GetComponentInChildren<Animator>();
-        // _stateMachine = BuildStateMachine();
-        // }
-
-
-        // private void Update()
-        // {
-        // _stateMachine.Tick(Time.deltaTime);
-        // }
 
         #region IReceptionVisitor functions
 
@@ -81,9 +67,7 @@ namespace Characters.Patients
 
         private bool ReceptionDeskAvailable()
         {
-            ReceptionDesk[] allDesks = FindObjectsOfType<ReceptionDesk>()
-                .OrderBy(d => Vector3.Distance(transform.position, d.transform.position)).ToArray();
-
+            ReceptionDesk[] allDesks = gameObject.FindClosestObjectsOfType<ReceptionDesk>();
             foreach (ReceptionDesk desk in allDesks)
             {
                 if (desk.HasRoomForPatient())
@@ -136,13 +120,7 @@ namespace Characters.Patients
 
             // we want to go to the reception if we have not yet gone.
             sm.AddTransition(idleState, seekingReceptionState, () => !_hasGoneToReception && ReceptionDeskAvailable());
-
-            // if there is no current reception desk available, we can line up behind one
-            // sm.AddTransition(idleState, lineUpState, () => !_hasGoneToReception && !ReceptionDeskAvailable() && _targetDesk.CanLineUp());
-
-            // if we are lined up, we will go to reception at the next possible chance
-            // sm.AddTransition(lineUpState, seekingReceptionState, () => _targetDesk.HasRoomForPatient());
-
+            
             // if the patient has been to reception, then we can go back to the idle state
             sm.AddTransition(seekingReceptionState, idleState, () => IsCheckedIn);
 
