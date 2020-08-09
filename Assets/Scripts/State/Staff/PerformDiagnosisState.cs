@@ -40,6 +40,7 @@ namespace Staff
             Debug.Log("Exiting diagnosis state!");
             _animator.SetBool(Talking, false);
             _animator.SetBool(Walking, false);
+            _rotationHandler.ClearTarget();
         }
 
         public void Tick(float deltaTime)

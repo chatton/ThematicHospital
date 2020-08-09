@@ -3,6 +3,7 @@ using Hospital.Locations;
 using State.Patient;
 using UnityEngine;
 using UnityEngine.AI;
+using Util;
 
 namespace State.Shared
 {
@@ -13,7 +14,7 @@ namespace State.Shared
 
         private IPositionProvider _room;
         private readonly RotationHandler _rotationHandler;
-        private Animator _animator;
+        private readonly Animator _animator;
         private readonly IRoomSeeker _seeker;
         private static readonly int Walking = Animator.StringToHash("Walking");
 
@@ -42,7 +43,7 @@ namespace State.Shared
 
         public void Tick(float deltaTime)
         {
-            if (_agent.transform.position == _agent.destination)
+            if (_agent.HasReachedDestination())
             {
                 _animator.SetBool(Walking, false);
                 Vector3 target = _room.GetPosition(_type);

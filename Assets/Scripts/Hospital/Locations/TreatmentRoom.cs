@@ -12,6 +12,8 @@ namespace Hospital.Locations
     {
         [SerializeField] protected Transform patientLocation;
         [SerializeField] protected Transform doctorLocation;
+        public bool DoctorIsNeeded => Patient != null && StaffMember == null && PatientPresent;
+
         public abstract bool CanTreat(Condition condition);
 
         private void Awake()
@@ -19,7 +21,7 @@ namespace Hospital.Locations
             Assert.IsNotNull(patientLocation, "patientLocation != null");
             Assert.IsNotNull(doctorLocation, "doctorLocation != null");
         }
-        
+
 
         public Vector3 GetPosition(CharacterType type)
         {
